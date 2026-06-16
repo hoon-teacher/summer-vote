@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>교대 동기 여름 모임 · 일정 투표</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF7F1;
+    --card:#FFFFFF;
+    --ink:#28302E;
+    --sub:#7A847F;
+    --line:#E9E3D8;
+    --accent:#1F6F6B;      /* 깊은 청록 — 여름 바다 */
+    --accent-soft:#E4F0EE;
+    --sat:#3B6FB5;
+    --sun:#C4524A;
+    --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    font-family:'Pretendard',-apple-system,sans-serif;
+    background:var(--bg);color:var(--ink);
+    line-height:1.55;font-size:15px;
+    padding-bottom:60px;
+  }
+  .wrap{max-width:480px;margin:0 auto;padding:0 16px}
+
+  /* ── 헤더 ── */
+  header{padding:36px 0 20px;text-align:center}
+  .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--accent);font-weight:600;margin-bottom:8px}
+  h1{font-family:'Gowun Batang',serif;font-size:26px;font-weight:700;letter-spacing:-.01em}
+  .deadline{display:inline-block;margin-top:10px;font-size:13px;color:var(--sub);
+    border:1px solid var(--line);border-radius:99px;padding:4px 14px;background:var(--card)}
+
+  /* ── 설정 안내 배너 ── */
+  .banner{background:#FFF6E5;border:1px solid #F0DFB8;color:#7A5C16;
+    border-radius:var(--radius);padding:12px 14px;font-size:13px;margin-bottom:16px;display:none}
+  .banner.show{display:block}
+
+  /* ── 탭 ── */
+  .tabs{display:flex;gap:6px;background:#EFEAE0;padding:5px;border-radius:99px;margin-bottom:18px}
+  .tab{flex:1;border:0;background:transparent;border-radius:99px;padding:10px 0;
+    font-size:14px;font-weight:600;color:var(--sub);cursor:pointer;font-family:inherit;transition:all .15s}
+  .tab.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.07)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 16px;margin-bottom:14px}
+  .card h2{font-size:15px;font-weight:700;margin-bottom:4px}
+  .card .hint{font-size:12.5px;color:var(--sub);margin-bottom:12px}
+
+  /* ── 이름 ── */
+  .name-row{display:flex;gap:8px}
+  .name-row input{flex:1;border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;
+    font-size:15px;font-family:inherit;background:var(--bg)}
+  .name-row input:focus{outline:none;border-color:var(--accent)}
+  .btn-ghost{border:1.5px solid var(--line);background:var(--card);border-radius:10px;
+    padding:0 14px;font-size:13px;color:var(--sub);cursor:pointer;font-family:inherit;white-space:nowrap}
+
+  /* ── 달력 ── */
+  .month{margin-bottom:18px}
+  .month:last-child{margin-bottom:0}
+  .month-name{font-family:'Gowun Batang',serif;font-size:16px;font-weight:700;margin-bottom:8px}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .dow{text-align:center;font-size:11px;color:var(--sub);padding-bottom:4px;font-weight:600}
+  .dow.sat{color:var(--sat)} .dow.sun{color:var(--sun)}
+  .cell{aspect-ratio:1;border-radius:9px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;font-size:13px;font-weight:500;
+    background:var(--bg);border:1px solid transparent;cursor:pointer;user-select:none;
+    transition:transform .08s}
+  .cell:active{transform:scale(.92)}
+  .cell.empty{background:transparent;cursor:default}
+  .cell.sat{color:var(--sat)} .cell.sun{color:var(--sun)}
+  .cell.sel{background:var(--accent);color:#fff !important;font-weight:700}
+  /* 결과 히트맵 */
+  .cell .cnt{font-size:9.5px;line-height:1;margin-top:2px;opacity:.85}
+  .cell.heat{cursor:pointer}
+  .cell.heat.deep{color:#fff !important}
+  .cell.picked{outline:2px solid var(--ink);outline-offset:1px}
+
+  /* ── 장소 ── */
+  .loc-grid{display:flex;flex-wrap:wrap;gap:8px}
+  .loc{flex:1 1 calc(33% - 6px);min-width:80px;border:1.5px solid var(--line);border-radius:10px;padding:12px 0;text-align:center;
+    font-size:14px;font-weight:600;cursor:pointer;background:var(--bg);color:var(--sub);transition:all .12s}
+  .loc.sel{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+
+  /* ── 저장 ── */
+  .btn-main{width:100%;border:0;background:var(--accent);color:#fff;border-radius:12px;
+    padding:15px 0;font-size:15.5px;font-weight:700;cursor:pointer;font-family:inherit;
+    margin-top:4px;transition:opacity .15s}
+  .btn-main:active{opacity:.85}
+  .btn-main:disabled{background:#B9C6C3;cursor:default}
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(80px);
+    background:var(--ink);color:#fff;font-size:13.5px;padding:11px 22px;border-radius:99px;
+    opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;z-index:50}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+  /* ── 결과 ── */
+  .best{display:flex;flex-direction:column;gap:8px}
+  .best-item{display:flex;align-items:center;gap:12px;background:var(--bg);
+    border-radius:10px;padding:11px 14px}
+  .best-rank{font-family:'Gowun Batang',serif;font-size:18px;font-weight:700;color:var(--accent);width:22px}
+  .best-date{font-weight:700;font-size:14.5px}
+  .best-names{font-size:12px;color:var(--sub);margin-top:1px}
+  .best-cnt{margin-left:auto;font-size:13px;font-weight:700;color:var(--accent);white-space:nowrap}
+
+  .bar-row{margin-bottom:10px}
+  .bar-row:last-child{margin-bottom:0}
+  .bar-label{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:4px}
+  .bar-label b{font-weight:600}
+  .bar-label span{color:var(--sub);font-size:12.5px}
+  .bar{height:8px;background:var(--bg);border-radius:99px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .4s}
+
+  .detail{background:var(--accent-soft);border-radius:10px;padding:12px 14px;
+    font-size:13.5px;margin-top:12px;display:none}
+  .detail.show{display:block}
+  .detail b{color:var(--accent)}
+
+  .people{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{background:var(--bg);border:1px solid var(--line);border-radius:99px;
+    padding:5px 12px;font-size:12.5px}
+  .chip span{color:var(--sub);font-size:11.5px;margin-left:3px}
+
+  .empty-msg{text-align:center;color:var(--sub);font-size:13.5px;padding:18px 0}
+  footer{text-align:center;font-size:11.5px;color:#B9B2A4;padding:24px 0 8px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">2026 SUMMER</div>
+    <h1 id="appTitle">교육위 OB 여름 모임</h1>
+    <div class="deadline" id="deadline"></div>
+  </header>
+
+  <div class="banner" id="setupBanner">
+    ⚙️ 아직 Firebase 설정 전이라 <b>미리보기 모드</b>예요. 저장은 이 화면에서만 유지됩니다.
+    파일 상단 CONFIG.firebase에 설정값을 넣으면 실제 투표가 시작돼요.
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" id="tabVote">투표하기</button>
+    <button class="tab" id="tabResult">결과 보기 <span id="voterCount"></span></button>
+  </div>
+
+  <!-- ───── 투표 화면 ───── -->
+  <div id="pageVote">
+    <div class="card">
+      <h2>이름</h2>
+      <div class="hint">같은 이름으로 다시 저장하면 이전 투표가 수정돼요.</div>
+      <div class="name-row">
+        <input id="nameInput" type="text" placeholder="이름을 입력하세요" maxlength="10">
+        <button class="btn-ghost" id="loadBtn">내 투표 불러오기</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>가능한 날짜</h2>
+      <div class="hint">가능한 날을 모두 눌러주세요. (여러 개 선택)</div>
+      <div id="myCalendars"></div>
+    </div>
+
+    <div class="card">
+      <h2>희망 장소</h2>
+      <div class="hint">하나만 골라주세요.</div>
+      <div class="loc-grid" id="locGrid"></div>
+    </div>
+
+    <button class="btn-main" id="saveBtn">투표 저장하기</button>
+  </div>
+
+  <!-- ───── 결과 화면 ───── -->
+  <div id="pageResult" style="display:none">
+    <div class="card">
+      <h2>날짜별 가능 인원</h2>
+      <div class="hint">색이 진할수록 많은 사람이 가능한 날이에요. 날짜를 누르면 명단이 보여요.</div>
+      <div id="resultCalendars"></div>
+      <div class="detail" id="dateDetail"></div>
+    </div>
+
+    <div class="card">
+      <h2>가장 좋은 날 TOP 3</h2>
+      <div id="bestDates"><div class="empty-msg">아직 투표가 없어요.</div></div>
+    </div>
+
+    <div class="card">
+      <h2>장소 투표 현황</h2>
+      <div id="locResult"><div class="empty-msg">아직 투표가 없어요.</div></div>
+    </div>
+
+    <div class="card">
+      <h2>참여자 <span id="pCount" style="color:var(--sub);font-weight:500;font-size:13px"></span></h2>
+      <div class="people" id="peopleList"><div class="empty-msg" style="width:100%">아직 아무도 투표하지 않았어요.</div></div>
+    </div>
+  </div>
+
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+/* ═══════════════════════════════════════════
+   ⚙️ CONFIG — 여기만 수정하면 됩니다
+═══════════════════════════════════════════ */
+const CONFIG = {
+  title: "교육위 OB 여름 모임",
+  deadline: "6월 26일(금)까지 투표해 주세요",
+  months: [ {year:2026, month:7}, {year:2026, month:8} ],   // 표시할 달
+  locations: ["전주", "완주", "군산", "서울", "부산", "제주도", "평양"],  // 장소 후보
+  collection: "summer2026",                                  // Firestore 컬렉션명
+  firebase: {
+    apiKey: "AIzaSyD2UBgfzSSWc43X09F9vw2s97XKiiyesyc",
+    authDomain: "edu-ob.firebaseapp.com",
+    projectId: "edu-ob",
+    storageBucket: "edu-ob.firebasestorage.app",
+    messagingSenderId: "361236093269",
+    appId: "1:361236093269:web:bfde4ee524aa81f5e237dc"
+  }
+};
+/* ═══════════════════════════════════════════ */
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2,"0");
+const DOW = ["일","월","화","수","목","금","토"];
+
+const isDemo = CONFIG.firebase.apiKey.includes("여기에");
+let db = null;
+if (!isDemo) {
+  const app = initializeApp(CONFIG.firebase);
+  db = getFirestore(app);
+} else {
+  $("setupBanner").classList.add("show");
+}
+
+/* 상태 */
+let mySelected = new Set();   // "2026-07-25"
+let myLocation = null;
+let allVotes = [];            // [{name, dates[], location}]
+let demoStore = {};           // 데모 모드 저장소
+let pickedDate = null;        // 결과에서 선택한 날짜
+
+$("appTitle").textContent = CONFIG.title;
+$("deadline").textContent = CONFIG.deadline;
+document.title = CONFIG.title + " · 일정 투표";
+
+/* ── 달력 공통 빌더 ── */
+function buildCalendar(container, {year, month}, mode){
+  const wrap = document.createElement("div");
+  wrap.className = "month";
+  wrap.innerHTML = `<div class="month-name">${year}년 ${month}월</div>`;
+  const grid = document.createElement("div");
+  grid.className = "cal";
+  DOW.forEach((d,i)=>{
+    const h = document.createElement("div");
+    h.className = "dow" + (i===0?" sun":i===6?" sat":"");
+    h.textContent = d;
+    grid.appendChild(h);
+  });
+  const first = new Date(year, month-1, 1).getDay();
+  const days = new Date(year, month, 0).getDate();
+  for(let i=0;i<first;i++){
+    const e=document.createElement("div"); e.className="cell empty"; grid.appendChild(e);
+  }
+  for(let d=1; d<=days; d++){
+    const key = `${year}-${pad(month)}-${pad(d)}`;
+    const dow = (first+d-1)%7;
+    const cell = document.createElement("div");
+    cell.className = "cell" + (dow===0?" sun":dow===6?" sat":"");
+    cell.dataset.key = key;
+    cell.innerHTML = `<span>${d}</span>`;
+    if(mode==="vote"){
+      if(mySelected.has(key)) cell.classList.add("sel");
+      cell.onclick = ()=>{ 
+        mySelected.has(key) ? mySelected.delete(key) : mySelected.add(key);
+        cell.classList.toggle("sel");
+      };
+    }
+    grid.appendChild(cell);
+  }
+  wrap.appendChild(grid);
+  container.appendChild(wrap);
+}
+
+function renderMyCalendars(){
+  const c = $("myCalendars"); c.innerHTML = "";
+  CONFIG.months.forEach(m => buildCalendar(c, m, "vote"));
+}
+
+/* ── 장소 버튼 ── */
+function renderLocations(){
+  const g = $("locGrid"); g.innerHTML = "";
+  CONFIG.locations.forEach(loc=>{
+    const b = document.createElement("div");
+    b.className = "loc" + (myLocation===loc?" sel":"");
+    b.textContent = loc;
+    b.onclick = ()=>{
+      myLocation = loc;
+      g.querySelectorAll(".loc").forEach(x=>x.classList.remove("sel"));
+      b.classList.add("sel");
+    };
+    g.appendChild(b);
+  });
+}
+
+/* ── 토스트 ── */
+let toastTimer;
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+
+/* ── 저장 / 불러오기 ── */
+$("saveBtn").onclick = async ()=>{
+  const name = $("nameInput").value.trim();
+  if(!name) return toast("이름을 입력해 주세요");
+  if(mySelected.size===0) return toast("가능한 날짜를 1개 이상 선택해 주세요");
+  if(!myLocation) return toast("희망 장소를 선택해 주세요");
+  const data = { name, dates:[...mySelected].sort(), location:myLocation };
+  try{
+    if(isDemo){
+      demoStore[name] = data;
+      allVotes = Object.values(demoStore);
+      refreshResults();
+    } else {
+      await setDoc(doc(db, CONFIG.collection, name), {...data, updatedAt: serverTimestamp()});
+    }
+    toast(`${name} 선생님, 투표 저장 완료!`);
+  }catch(e){
+    console.error(e);
+    toast("저장 실패 — 인터넷 연결을 확인해 주세요");
+  }
+};
+
+$("loadBtn").onclick = async ()=>{
+  const name = $("nameInput").value.trim();
+  if(!name) return toast("이름을 먼저 입력해 주세요");
+  let data = null;
+  if(isDemo){ data = demoStore[name] || null; }
+  else {
+    const snap = await getDoc(doc(db, CONFIG.collection, name));
+    data = snap.exists() ? snap.data() : null;
+  }
+  if(!data) return toast("저장된 투표가 없어요");
+  mySelected = new Set(data.dates||[]);
+  myLocation = data.location||null;
+  renderMyCalendars(); renderLocations();
+  toast("이전 투표를 불러왔어요");
+};
+
+/* ── 결과 ── */
+function refreshResults(){
+  const counts = {};   // key -> [names]
+  allVotes.forEach(v => (v.dates||[]).forEach(k=>{
+    (counts[k] = counts[k]||[]).push(v.name);
+  }));
+  const max = Math.max(1, ...Object.values(counts).map(a=>a.length));
+
+  /* 히트맵 달력 */
+  const c = $("resultCalendars"); c.innerHTML = "";
+  CONFIG.months.forEach(m => buildCalendar(c, m, "result"));
+  c.querySelectorAll(".cell[data-key]").forEach(cell=>{
+    const key = cell.dataset.key;
+    const names = counts[key];
+    if(names){
+      const ratio = names.length / max;
+      const alpha = 0.18 + ratio*0.82;
+      cell.style.background = `rgba(31,111,107,${alpha.toFixed(2)})`;
+      if(alpha > 0.55) cell.classList.add("deep");
+      cell.classList.add("heat");
+      cell.innerHTML = `<span>${parseInt(key.slice(8))}</span><span class="cnt">${names.length}명</span>`;
+    }
+    if(key===pickedDate) cell.classList.add("picked");
+    cell.onclick = ()=>{
+      pickedDate = key;
+      c.querySelectorAll(".cell").forEach(x=>x.classList.remove("picked"));
+      cell.classList.add("picked");
+      const d = new Date(key);
+      const label = `${d.getMonth()+1}월 ${d.getDate()}일(${DOW[d.getDay()]})`;
+      $("dateDetail").classList.add("show");
+      $("dateDetail").innerHTML = names
+        ? `<b>${label} · ${names.length}명 가능</b><br>${names.join(", ")}`
+        : `<b>${label}</b><br>가능한 사람이 아직 없어요.`;
+    };
+  });
+
+  /* TOP 3 */
+  const ranked = Object.entries(counts)
+    .sort((a,b)=> b[1].length - a[1].length || a[0].localeCompare(b[0]))
+    .slice(0,3);
+  $("bestDates").innerHTML = ranked.length
+    ? ranked.map(([key,names],i)=>{
+        const d = new Date(key);
+        const label = `${d.getMonth()+1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`;
+        return `<div class="best-item">
+          <div class="best-rank">${i+1}</div>
+          <div><div class="best-date">${label}</div>
+          <div class="best-names">${names.join(", ")}</div></div>
+          <div class="best-cnt">${names.length}명</div></div>`;
+      }).join("")
+    : `<div class="empty-msg">아직 투표가 없어요.</div>`;
+
+  /* 장소 */
+  const locCount = {};
+  CONFIG.locations.forEach(l=>locCount[l]=0);
+  allVotes.forEach(v=>{ if(v.location in locCount) locCount[v.location]++; });
+  const total = allVotes.length;
+  $("locResult").innerHTML = total
+    ? CONFIG.locations.map(l=>{
+        const n = locCount[l], pct = total? Math.round(n/total*100):0;
+        return `<div class="bar-row">
+          <div class="bar-label"><b>${l}</b><span>${n}명 · ${pct}%</span></div>
+          <div class="bar"><i style="width:${pct}%"></i></div></div>`;
+      }).join("")
+    : `<div class="empty-msg">아직 투표가 없어요.</div>`;
+
+  /* 참여자 */
+  $("pCount").textContent = total ? `${total}명` : "";
+  $("voterCount").textContent = total ? `(${total})` : "";
+  $("peopleList").innerHTML = total
+    ? allVotes.map(v=>`<div class="chip">${v.name}<span>${(v.dates||[]).length}일</span></div>`).join("")
+    : `<div class="empty-msg" style="width:100%">아직 아무도 투표하지 않았어요.</div>`;
+}
+
+/* ── 실시간 구독 ── */
+if(!isDemo){
+  onSnapshot(collection(db, CONFIG.collection), snap=>{
+    allVotes = snap.docs.map(d=>d.data());
+    refreshResults();
+  });
+}
+
+/* ── 탭 ── */
+$("tabVote").onclick = ()=>{
+  $("tabVote").classList.add("on"); $("tabResult").classList.remove("on");
+  $("pageVote").style.display=""; $("pageResult").style.display="none";
+};
+$("tabResult").onclick = ()=>{
+  $("tabResult").classList.add("on"); $("tabVote").classList.remove("on");
+  $("pageVote").style.display="none"; $("pageResult").style.display="";
+};
+
+/* 초기 렌더 */
+renderMyCalendars();
+renderLocations();
+refreshResults();
+</script>
+</body>
+</html>
