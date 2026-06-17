@@ -34,6 +34,13 @@
   h1{font-family:'Gowun Batang',serif;font-size:26px;font-weight:700;letter-spacing:-.01em}
   .deadline{display:inline-block;margin-top:10px;font-size:13px;color:var(--sub);
     border:1px solid var(--line);border-radius:99px;padding:4px 14px;background:var(--card)}
+  .countdown{display:flex;justify-content:center;gap:8px;margin-top:14px}
+  .cd-box{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:8px 0;width:62px;display:flex;flex-direction:column;align-items:center;gap:1px}
+  .cd-box b{font-family:'Gowun Batang',serif;font-size:22px;font-weight:700;color:var(--accent);
+    line-height:1;font-variant-numeric:tabular-nums}
+  .cd-box span{font-size:11px;color:var(--sub)}
+  .cd-closed{display:none;margin-top:14px;font-size:14px;font-weight:700;color:var(--sun)}
 
   /* ── 설정 안내 배너 ── */
   .banner{background:#FFF6E5;border:1px solid #F0DFB8;color:#7A5C16;
@@ -135,6 +142,13 @@
     <div class="eyebrow">2026 SUMMER</div>
     <h1 id="appTitle">교육위 OB 여름 모임</h1>
     <div class="deadline" id="deadline"></div>
+    <div class="countdown" id="countdown">
+      <div class="cd-box"><b id="cdDay">--</b><span>일</span></div>
+      <div class="cd-box"><b id="cdHour">--</b><span>시간</span></div>
+      <div class="cd-box"><b id="cdMin">--</b><span>분</span></div>
+      <div class="cd-box"><b id="cdSec">--</b><span>초</span></div>
+    </div>
+    <div class="cd-closed" id="cdClosed">투표가 마감되었어요</div>
   </header>
 
   <div class="banner" id="setupBanner">
@@ -210,6 +224,7 @@
 const CONFIG = {
   title: "교육위 OB 여름 모임",
   deadline: "6월 26일(금)까지 투표해 주세요",
+  deadlineAt: "2026-06-26T23:59:59+09:00",   // 카운트다운 종료 시각
   months: [ {year:2026, month:7}, {year:2026, month:8} ],   // 표시할 달
   locations: ["전주", "완주", "군산", "서울", "부산", "제주도", "평양"],  // 장소 후보
   collection: "summer2026",                                  // Firestore 컬렉션명
@@ -250,6 +265,28 @@ let pickedDate = null;        // 결과에서 선택한 날짜
 
 $("appTitle").textContent = CONFIG.title;
 $("deadline").textContent = CONFIG.deadline;
+
+/* ── 카운트다운 ── */
+function tickCountdown(){
+  const end = new Date(CONFIG.deadlineAt).getTime();
+  const diff = end - Date.now();
+  const cd = $("countdown"), closed = $("cdClosed");
+  if(diff <= 0){
+    cd.style.display = "none";
+    closed.style.display = "block";
+    return;
+  }
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor(diff % 86400000 / 3600000);
+  const m = Math.floor(diff % 3600000 / 60000);
+  const s = Math.floor(diff % 60000 / 1000);
+  $("cdDay").textContent  = d;
+  $("cdHour").textContent = pad(h);
+  $("cdMin").textContent  = pad(m);
+  $("cdSec").textContent  = pad(s);
+}
+tickCountdown();
+setInterval(tickCountdown, 1000);
 document.title = CONFIG.title + " · 일정 투표";
 
 /* ── 달력 공통 빌더 ── */
