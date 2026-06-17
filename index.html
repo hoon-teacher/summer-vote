@@ -5,42 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>교대 동기 여름 모임 · 일정 투표</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+<link href="https://hangeul.pstatic.net/hangeul_static/css/maru-buri.css" rel="stylesheet">
 <style>
   :root{
-    --bg:#FAF7F1;
+    --bg:#EAF6FB;
     --card:#FFFFFF;
-    --ink:#28302E;
-    --sub:#7A847F;
-    --line:#E9E3D8;
-    --accent:#1F6F6B;      /* 깊은 청록 — 여름 바다 */
-    --accent-soft:#E4F0EE;
-    --sat:#3B6FB5;
-    --sun:#C4524A;
+    --ink:#13384A;
+    --sub:#5E8497;
+    --line:#D2E8F1;
+    --accent:#0E8AA8;      /* 시원한 바다 청록 */
+    --accent-soft:#DCF0F6;
+    --sat:#2E73C4;
+    --sun:#E0794A;
     --radius:14px;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{
     font-family:'Pretendard',-apple-system,sans-serif;
-    background:var(--bg);color:var(--ink);
+    background:linear-gradient(180deg,#8FD3E8 0%,#BFE6F0 18%,#EAF6FB 42%);
+    background-attachment:fixed;
+    color:var(--ink);
     line-height:1.55;font-size:15px;
     padding-bottom:60px;
+    min-height:100vh;
   }
-  .wrap{max-width:480px;margin:0 auto;padding:0 16px}
+  .wrap{max-width:480px;margin:0 auto;padding:0 16px;position:relative;z-index:1}
 
   /* ── 헤더 ── */
-  header{padding:36px 0 20px;text-align:center}
-  .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--accent);font-weight:600;margin-bottom:8px}
-  h1{font-family:'Gowun Batang',serif;font-size:26px;font-weight:700;letter-spacing:-.01em}
-  .deadline{display:inline-block;margin-top:10px;font-size:13px;color:var(--sub);
-    border:1px solid var(--line);border-radius:99px;padding:4px 14px;background:var(--card)}
-  .countdown{display:flex;justify-content:center;gap:8px;margin-top:14px}
-  .cd-box{background:var(--card);border:1px solid var(--line);border-radius:12px;
-    padding:8px 0;width:62px;display:flex;flex-direction:column;align-items:center;gap:1px}
-  .cd-box b{font-family:'Gowun Batang',serif;font-size:22px;font-weight:700;color:var(--accent);
-    line-height:1;font-variant-numeric:tabular-nums}
-  .cd-box span{font-size:11px;color:var(--sub)}
-  .cd-closed{display:none;margin-top:14px;font-size:14px;font-weight:700;color:var(--sun)}
+  header{padding:40px 0 8px;text-align:center;position:relative}
+  .eyebrow{font-size:12px;letter-spacing:.18em;color:#0B6E88;font-weight:700;margin-bottom:8px}
+  h1{font-family:'Nanum Pen Script','Gowun Batang',serif;font-size:40px;font-weight:400;letter-spacing:.01em;color:#0C475C;line-height:1.1}
+  .wave{display:block;width:100vw;margin-left:calc(-50vw + 50%);margin-top:18px;line-height:0}
+  .deadline{display:inline-block;margin-top:10px;font-size:13px;color:#0C475C;
+    border:1px solid rgba(255,255,255,.7);border-radius:99px;padding:4px 14px;
+    background:rgba(255,255,255,.75);backdrop-filter:blur(4px)}
+  .dday{display:inline-block;margin-top:12px;font-family:'Nanum Pen Script','Gowun Batang',serif;
+    font-size:24px;font-weight:400;color:#fff;background:var(--accent);
+    border-radius:99px;padding:3px 22px;letter-spacing:.04em;
+    box-shadow:0 3px 10px rgba(14,138,168,.25);font-variant-numeric:tabular-nums}
+  .dday.closed{background:var(--sun);box-shadow:0 3px 10px rgba(224,121,74,.25)}
 
   /* ── 설정 안내 배너 ── */
   .banner{background:#FFF6E5;border:1px solid #F0DFB8;color:#7A5C16;
@@ -55,7 +59,7 @@
 
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
     padding:18px 16px;margin-bottom:14px}
-  .card h2{font-size:15px;font-weight:700;margin-bottom:4px}
+  .card h2{font-family:'MaruBuri','Gowun Batang',serif;font-size:16px;font-weight:700;margin-bottom:4px;color:#0C475C}
   .card .hint{font-size:12.5px;color:var(--sub);margin-bottom:12px}
 
   /* ── 이름 ── */
@@ -69,7 +73,7 @@
   /* ── 달력 ── */
   .month{margin-bottom:18px}
   .month:last-child{margin-bottom:0}
-  .month-name{font-family:'Gowun Batang',serif;font-size:16px;font-weight:700;margin-bottom:8px}
+  .month-name{font-family:'MaruBuri','Gowun Batang',serif;font-size:18px;font-weight:600;margin-bottom:6px;color:#0C475C}
   .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
   .dow{text-align:center;font-size:11px;color:var(--sub);padding-bottom:4px;font-weight:600}
   .dow.sat{color:var(--sat)} .dow.sun{color:var(--sun)}
@@ -108,7 +112,7 @@
   .best{display:flex;flex-direction:column;gap:8px}
   .best-item{display:flex;align-items:center;gap:12px;background:var(--bg);
     border-radius:10px;padding:11px 14px}
-  .best-rank{font-family:'Gowun Batang',serif;font-size:18px;font-weight:700;color:var(--accent);width:22px}
+  .best-rank{font-family:'MaruBuri','Gowun Batang',serif;font-size:18px;font-weight:700;color:var(--accent);width:22px}
   .best-date{font-weight:700;font-size:14.5px}
   .best-names{font-size:12px;color:var(--sub);margin-top:1px}
   .best-cnt{margin-left:auto;font-size:13px;font-weight:700;color:var(--accent);white-space:nowrap}
@@ -142,14 +146,13 @@
     <div class="eyebrow">2026 SUMMER</div>
     <h1 id="appTitle">교육위 OB 여름 모임</h1>
     <div class="deadline" id="deadline"></div>
-    <div class="countdown" id="countdown">
-      <div class="cd-box"><b id="cdDay">--</b><span>일</span></div>
-      <div class="cd-box"><b id="cdHour">--</b><span>시간</span></div>
-      <div class="cd-box"><b id="cdMin">--</b><span>분</span></div>
-      <div class="cd-box"><b id="cdSec">--</b><span>초</span></div>
-    </div>
-    <div class="cd-closed" id="cdClosed">투표가 마감되었어요</div>
+    <div class="dday" id="dday">D-—</div>
   </header>
+
+  <svg class="wave" viewBox="0 0 1440 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,40 C240,80 480,10 720,40 C960,70 1200,15 1440,45 L1440,90 L0,90 Z" fill="#BFE6F0" opacity="0.6"/>
+    <path d="M0,55 C240,90 480,25 720,55 C960,85 1200,30 1440,58 L1440,90 L0,90 Z" fill="#8FD3E8" opacity="0.55"/>
+  </svg>
 
   <div class="banner" id="setupBanner">
     ⚙️ 아직 Firebase 설정 전이라 <b>미리보기 모드</b>예요. 저장은 이 화면에서만 유지됩니다.
@@ -266,27 +269,21 @@ let pickedDate = null;        // 결과에서 선택한 날짜
 $("appTitle").textContent = CONFIG.title;
 $("deadline").textContent = CONFIG.deadline;
 
-/* ── 카운트다운 ── */
+/* ── D-day ── */
 function tickCountdown(){
   const end = new Date(CONFIG.deadlineAt).getTime();
-  const diff = end - Date.now();
-  const cd = $("countdown"), closed = $("cdClosed");
-  if(diff <= 0){
-    cd.style.display = "none";
-    closed.style.display = "block";
+  const dday = $("dday");
+  const left = end - Date.now();
+  if(left <= 0){
+    dday.textContent = "투표 마감";
+    dday.classList.add("closed");
     return;
   }
-  const d = Math.floor(diff / 86400000);
-  const h = Math.floor(diff % 86400000 / 3600000);
-  const m = Math.floor(diff % 3600000 / 60000);
-  const s = Math.floor(diff % 60000 / 1000);
-  $("cdDay").textContent  = d;
-  $("cdHour").textContent = pad(h);
-  $("cdMin").textContent  = pad(m);
-  $("cdSec").textContent  = pad(s);
+  const d = Math.ceil(left / 86400000);
+  dday.textContent = d === 0 ? "D-DAY" : "D-" + d;
 }
 tickCountdown();
-setInterval(tickCountdown, 1000);
+setInterval(tickCountdown, 60000);
 document.title = CONFIG.title + " · 일정 투표";
 
 /* ── 달력 공통 빌더 ── */
